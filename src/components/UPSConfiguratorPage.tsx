@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { useAuth } from '../contexts/AuthContext';
+import { getBatteryConfigFromExcel } from '../config/excelBatteryConfig';
 
 // Custom styles for scrollbar
 const customScrollbarStyles = `
@@ -653,7 +654,23 @@ export default function UPSConfiguratorPage() {
 
   // Calculate required battery configuration automatically based on Excel table
   const calculateBatteryRequirements = (upsProduct: UPSProduct, backupTime: BatteryTime) => {
-    // Enhanced mapping based on UPS capacity and type - proper configurations for each UPS model and backup time
+    // Получаем точную конфигурацию из Excel файла
+    const excelConfig = getBatteryConfigFromExcel(upsProduct.model, backupTime);
+    
+    if (excelConfig) {
+      // Используем данные из Excel файла
+      const batterySpec = BATTERY_SPECS.find(spec => spec.type === excelConfig.type);
+      if (batterySpec) {
+        const requiredRacks = Math.ceil(excelConfig.quantity / 40);
+        return {
+          quantity: excelConfig.quantity,
+          racks: requiredRacks,
+          spec: batterySpec
+        };
+      }
+    }
+
+    // Fallback: Enhanced mapping based on UPS capacity and type - proper configurations for each UPS model and backup time
     // This ensures appropriate battery types are selected based on UPS capacity
     const batteryConfigurations: Record<string, Record<BatteryTime, { type: BatteryType; quantity: number }>> = {
       // UR Series - 10kVA
@@ -1988,9 +2005,14 @@ export default function UPSConfiguratorPage() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#8AB73A]/20 to-[#60a5fa]/10 rounded-3xl blur-xl -z-10"></div>
               
               <div className="text-center space-y-8">
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-[#8AB73A] to-[#60a5fa] bg-clip-text text-transparent">
-                  Оптимальная конфигурация
-                </h3>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#8AB73A] to-[#60a5fa] bg-clip-text text-transparent">
+                    Оптимальная конфигурация
+                  </h3>
+                  <div className="inline-flex items-center px-3 py-1 bg-[#8AB73A]/20 border border-[#8AB73A]/40 rounded-full text-sm text-[#8AB73A] font-medium">
+                    📊 Данные из UPS_confeti.xlsx
+                  </div>
+                </div>
                 
                 {/* Modern grid with enhanced cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -2714,6 +2736,12 @@ export default function UPSConfiguratorPage() {
   // Calculate battery quantity for any battery type based on UPS capacity and backup time
   const calculateBatteryQuantityForType = (upsProduct: UPSProduct, backupTime: BatteryTime, batteryType: BatteryType): number => {
     if (!upsProduct || !backupTime || !batteryType) return 40;
+
+    // Сначала пытаемся получить точную конфигурацию из Excel
+    const excelConfig = getBatteryConfigFromExcel(upsProduct.model, backupTime);
+    if (excelConfig && excelConfig.type === batteryType) {
+      return excelConfig.quantity;
+    }
 
     // Enhanced quantity calculation based on UPS capacity, battery type, and backup time
     let baseQuantity = 40;
