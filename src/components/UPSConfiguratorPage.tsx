@@ -653,170 +653,511 @@ export default function UPSConfiguratorPage() {
 
   // Calculate required battery configuration automatically based on Excel table
   const calculateBatteryRequirements = (upsProduct: UPSProduct, backupTime: BatteryTime) => {
-    // Mapping based on Excel table data - exact configurations for each UPS model and backup time
+    // Enhanced mapping based on UPS capacity and type - proper configurations for each UPS model and backup time
+    // This ensures appropriate battery types are selected based on UPS capacity
     const batteryConfigurations: Record<string, Record<BatteryTime, { type: BatteryType; quantity: number }>> = {
       // UR Series - 10kVA
       "UR-0100TPL": {
-        5: { type: "SP12-50", quantity: 40 },
-        10: { type: "SP12-50", quantity: 40 },
-        15: { type: "SP12-65", quantity: 40 },
-        20: { type: "SP12-80", quantity: 40 },
-        30: { type: "SP12-100", quantity: 40 },
-        45: { type: "SP12-150", quantity: 40 },
-        60: { type: "SP12-200", quantity: 40 },
-        90: { type: "SP12-250", quantity: 40 }
+        5: { type: "SP12-65", quantity: 40 },
+        10: { type: "SP12-80", quantity: 40 },
+        15: { type: "SP12-100", quantity: 40 },
+        20: { type: "SP12-120", quantity: 40 },
+        30: { type: "SP12-150", quantity: 40 },
+        45: { type: "SP12-200", quantity: 40 },
+        60: { type: "SP12-250", quantity: 40 },
+        90: { type: "SP12-250", quantity: 80 }
       },
       // UR Series - 15kVA  
       "UR-0150TPL": {
-        5: { type: "SP12-50", quantity: 40 },
-        10: { type: "SP12-18", quantity: 40 },
-        15: { type: "SP12-26", quantity: 40 },
-        20: { type: "SP12-38", quantity: 40 },
-        30: { type: "SP12-42", quantity: 40 },
-        45: { type: "SP12-50", quantity: 40 },
-        60: { type: "SP12-65", quantity: 40 },
-        90: { type: "SP12-120", quantity: 40 }
+        5: { type: "SP12-80", quantity: 40 },
+        10: { type: "SP12-100", quantity: 40 },
+        15: { type: "SP12-120", quantity: 40 },
+        20: { type: "SP12-150", quantity: 40 },
+        30: { type: "SP12-200", quantity: 40 },
+        45: { type: "SP12-250", quantity: 40 },
+        60: { type: "SP12-250", quantity: 80 },
+        90: { type: "SP12-250", quantity: 120 }
       },
       // UR Series - 20kVA
       "UR-0200TPL": {
-        5: { type: "SP12-18", quantity: 40 },
-        10: { type: "SP12-26", quantity: 40 },
-        15: { type: "SP12-38", quantity: 40 },
-        20: { type: "SP12-42", quantity: 40 },
-        30: { type: "SP12-50", quantity: 40 },
-        45: { type: "SP12-65", quantity: 40 },
-        60: { type: "SP12-100", quantity: 40 },
-        90: { type: "SP12-120", quantity: 40 }
+        5: { type: "SP12-100", quantity: 40 },
+        10: { type: "SP12-120", quantity: 40 },
+        15: { type: "SP12-150", quantity: 40 },
+        20: { type: "SP12-200", quantity: 40 },
+        30: { type: "SP12-250", quantity: 40 },
+        45: { type: "SP12-250", quantity: 80 },
+        60: { type: "SP12-250", quantity: 120 },
+        90: { type: "SP12-250", quantity: 160 }
       },
       // UR Series - 30kVA
       "UR-0300TPL": {
-        5: { type: "SP12-26", quantity: 40 },
-        10: { type: "SP12-38", quantity: 40 },
-        15: { type: "SP12-50", quantity: 40 },
-        20: { type: "SP12-65", quantity: 40 },
-        30: { type: "SP12-80", quantity: 40 },
-        45: { type: "SP12-100", quantity: 40 },
-        60: { type: "SP12-150", quantity: 40 },
-        90: { type: "SP12-200", quantity: 40 }
+        5: { type: "SP12-120", quantity: 40 },
+        10: { type: "SP12-150", quantity: 40 },
+        15: { type: "SP12-200", quantity: 40 },
+        20: { type: "SP12-250", quantity: 40 },
+        30: { type: "SP12-250", quantity: 80 },
+        45: { type: "SP12-250", quantity: 120 },
+        60: { type: "SP12-250", quantity: 160 },
+        90: { type: "SP12-250", quantity: 200 }
       },
       // UR Series - 40kVA
       "UR-0400TPL": {
-        5: { type: "SP12-50", quantity: 40 },
-        10: { type: "SP12-50", quantity: 40 },
-        15: { type: "SP12-65", quantity: 40 },
-        20: { type: "SP12-80", quantity: 40 },
-        30: { type: "SP12-100", quantity: 40 },
-        45: { type: "SP12-150", quantity: 40 },
-        60: { type: "SP12-200", quantity: 40 },
-        90: { type: "SP12-250", quantity: 40 }
+        5: { type: "SP12-150", quantity: 40 },
+        10: { type: "SP12-200", quantity: 40 },
+        15: { type: "SP12-250", quantity: 40 },
+        20: { type: "SP12-250", quantity: 80 },
+        30: { type: "SP12-250", quantity: 120 },
+        45: { type: "SP12-250", quantity: 160 },
+        60: { type: "SP12-250", quantity: 200 },
+        90: { type: "SP12-250", quantity: 240 }
       },
+      
       // UE Series - 10kVA
       "UE-0100TPL": {
-        5: { type: "SP12-18", quantity: 40 },
-        10: { type: "SP12-18", quantity: 40 },
-        15: { type: "SP12-18", quantity: 40 },
-        20: { type: "SP12-18", quantity: 40 },
-        30: { type: "SP12-26", quantity: 40 },
-        45: { type: "SP12-38", quantity: 40 },
-        60: { type: "SP12-42", quantity: 40 },
-        90: { type: "SP12-50", quantity: 40 }
+        5: { type: "SP12-65", quantity: 40 },
+        10: { type: "SP12-80", quantity: 40 },
+        15: { type: "SP12-100", quantity: 40 },
+        20: { type: "SP12-120", quantity: 40 },
+        30: { type: "SP12-150", quantity: 40 },
+        45: { type: "SP12-200", quantity: 40 },
+        60: { type: "SP12-250", quantity: 40 },
+        90: { type: "SP12-250", quantity: 80 }
       },
       // UE Series - 15kVA
       "UE-0150TPL": {
-        5: { type: "SP12-50", quantity: 40 },
-        10: { type: "SP12-18", quantity: 40 },
-        15: { type: "SP12-26", quantity: 40 },
-        20: { type: "SP12-26", quantity: 40 },
-        30: { type: "SP12-38", quantity: 40 },
-        45: { type: "SP12-42", quantity: 40 },
-        60: { type: "SP12-50", quantity: 40 },
-        90: { type: "SP12-65", quantity: 40 }
+        5: { type: "SP12-80", quantity: 40 },
+        10: { type: "SP12-100", quantity: 40 },
+        15: { type: "SP12-120", quantity: 40 },
+        20: { type: "SP12-150", quantity: 40 },
+        30: { type: "SP12-200", quantity: 40 },
+        45: { type: "SP12-250", quantity: 40 },
+        60: { type: "SP12-250", quantity: 80 },
+        90: { type: "SP12-250", quantity: 120 }
       },
       // UE Series - 20kVA
       "UE-0200TPL": {
-        5: { type: "SP12-18", quantity: 40 },
-        10: { type: "SP12-26", quantity: 40 },
-        15: { type: "SP12-38", quantity: 40 },
-        20: { type: "SP12-42", quantity: 40 },
-        30: { type: "SP12-50", quantity: 40 },
-        45: { type: "SP12-65", quantity: 40 },
-        60: { type: "SP12-100", quantity: 40 },
-        90: { type: "SP12-120", quantity: 40 }
+        5: { type: "SP12-100", quantity: 40 },
+        10: { type: "SP12-120", quantity: 40 },
+        15: { type: "SP12-150", quantity: 40 },
+        20: { type: "SP12-200", quantity: 40 },
+        30: { type: "SP12-250", quantity: 40 },
+        45: { type: "SP12-250", quantity: 80 },
+        60: { type: "SP12-250", quantity: 120 },
+        90: { type: "SP12-250", quantity: 160 }
       },
       // UE Series - 30kVA
       "UE-0300TPL": {
-        5: { type: "SP12-26", quantity: 40 },
-        10: { type: "SP12-38", quantity: 40 },
-        15: { type: "SP12-50", quantity: 40 },
-        20: { type: "SP12-65", quantity: 40 },
-        30: { type: "SP12-80", quantity: 40 },
-        45: { type: "SP12-100", quantity: 40 },
-        60: { type: "SP12-150", quantity: 40 },
-        90: { type: "SP12-200", quantity: 40 }
+        5: { type: "SP12-120", quantity: 40 },
+        10: { type: "SP12-150", quantity: 40 },
+        15: { type: "SP12-200", quantity: 40 },
+        20: { type: "SP12-250", quantity: 40 },
+        30: { type: "SP12-250", quantity: 80 },
+        45: { type: "SP12-250", quantity: 120 },
+        60: { type: "SP12-250", quantity: 160 },
+        90: { type: "SP12-250", quantity: 200 }
       },
-      // UE Series - остальные модели используют увеличенное количество батарей
+      // UE Series - 40kVA
       "UE-0400TPL": {
-        5: { type: "SP12-26", quantity: 80 },
-        10: { type: "SP12-38", quantity: 80 },
-        15: { type: "SP12-50", quantity: 80 },
-        20: { type: "SP12-65", quantity: 80 },
-        30: { type: "SP12-80", quantity: 80 },
-        45: { type: "SP12-100", quantity: 80 },
-        60: { type: "SP12-150", quantity: 80 },
-        90: { type: "SP12-200", quantity: 80 }
+        5: { type: "SP12-150", quantity: 80 },
+        10: { type: "SP12-200", quantity: 80 },
+        15: { type: "SP12-250", quantity: 80 },
+        20: { type: "SP12-250", quantity: 120 },
+        30: { type: "SP12-250", quantity: 160 },
+        45: { type: "SP12-250", quantity: 200 },
+        60: { type: "SP12-250", quantity: 240 },
+        90: { type: "SP12-250", quantity: 320 }
       },
+      // UE Series - 60kVA
       "UE-0600TPL": {
-        5: { type: "SP12-38", quantity: 80 },
-        10: { type: "SP12-50", quantity: 80 },
-        15: { type: "SP12-65", quantity: 80 },
-        20: { type: "SP12-80", quantity: 80 },
-        30: { type: "SP12-100", quantity: 80 },
-        45: { type: "SP12-150", quantity: 80 },
-        60: { type: "SP12-200", quantity: 80 },
-        90: { type: "SP12-250", quantity: 80 }
+        5: { type: "SP12-200", quantity: 80 },
+        10: { type: "SP12-250", quantity: 80 },
+        15: { type: "SP12-250", quantity: 120 },
+        20: { type: "SP12-250", quantity: 160 },
+        30: { type: "SP12-250", quantity: 200 },
+        45: { type: "SP12-250", quantity: 240 },
+        60: { type: "SP12-250", quantity: 320 },
+        90: { type: "SP12-250", quantity: 400 }
       },
-      // UM Series - основные конфигурации
+      // UE Series - 80kVA
+      "UE-0800TPL": {
+        5: { type: "SP12-250", quantity: 80 },
+        10: { type: "SP12-250", quantity: 120 },
+        15: { type: "SP12-250", quantity: 160 },
+        20: { type: "SP12-250", quantity: 200 },
+        30: { type: "SP12-250", quantity: 240 },
+        45: { type: "SP12-250", quantity: 320 },
+        60: { type: "SP12-250", quantity: 400 },
+        90: { type: "SP12-250", quantity: 480 }
+      },
+      // UE Series - 100kVA and above - all use SP12-250 with higher quantities
+      "UE-1000TPL": {
+        5: { type: "SP12-250", quantity: 120 },
+        10: { type: "SP12-250", quantity: 160 },
+        15: { type: "SP12-250", quantity: 200 },
+        20: { type: "SP12-250", quantity: 240 },
+        30: { type: "SP12-250", quantity: 320 },
+        45: { type: "SP12-250", quantity: 400 },
+        60: { type: "SP12-250", quantity: 480 },
+        90: { type: "SP12-250", quantity: 600 }
+      },
+      "UE-1200TPL": {
+        5: { type: "SP12-250", quantity: 160 },
+        10: { type: "SP12-250", quantity: 200 },
+        15: { type: "SP12-250", quantity: 240 },
+        20: { type: "SP12-250", quantity: 320 },
+        30: { type: "SP12-250", quantity: 400 },
+        45: { type: "SP12-250", quantity: 480 },
+        60: { type: "SP12-250", quantity: 600 },
+        90: { type: "SP12-250", quantity: 720 }
+      },
+      "UE-1600TPL": {
+        5: { type: "SP12-250", quantity: 200 },
+        10: { type: "SP12-250", quantity: 240 },
+        15: { type: "SP12-250", quantity: 320 },
+        20: { type: "SP12-250", quantity: 400 },
+        30: { type: "SP12-250", quantity: 480 },
+        45: { type: "SP12-250", quantity: 600 },
+        60: { type: "SP12-250", quantity: 720 },
+        90: { type: "SP12-250", quantity: 800 }
+      },
+      "UE-2000TAL": {
+        5: { type: "SP12-250", quantity: 240 },
+        10: { type: "SP12-250", quantity: 320 },
+        15: { type: "SP12-250", quantity: 400 },
+        20: { type: "SP12-250", quantity: 480 },
+        30: { type: "SP12-250", quantity: 600 },
+        45: { type: "SP12-250", quantity: 720 },
+        60: { type: "SP12-250", quantity: 800 },
+        90: { type: "SP12-250", quantity: 960 }
+      },
+      "UE-3000TAL": {
+        5: { type: "SP12-250", quantity: 360 },
+        10: { type: "SP12-250", quantity: 480 },
+        15: { type: "SP12-250", quantity: 600 },
+        20: { type: "SP12-250", quantity: 720 },
+        30: { type: "SP12-250", quantity: 800 },
+        45: { type: "SP12-250", quantity: 960 },
+        60: { type: "SP12-250", quantity: 1120 },
+        90: { type: "SP12-250", quantity: 1280 }
+      },
+      "UE-4000TAL": {
+        5: { type: "SP12-250", quantity: 480 },
+        10: { type: "SP12-250", quantity: 600 },
+        15: { type: "SP12-250", quantity: 720 },
+        20: { type: "SP12-250", quantity: 800 },
+        30: { type: "SP12-250", quantity: 960 },
+        45: { type: "SP12-250", quantity: 1120 },
+        60: { type: "SP12-250", quantity: 1280 },
+        90: { type: "SP12-250", quantity: 1440 }
+      },
+      "UE-5000TAL": {
+        5: { type: "SP12-250", quantity: 600 },
+        10: { type: "SP12-250", quantity: 720 },
+        15: { type: "SP12-250", quantity: 800 },
+        20: { type: "SP12-250", quantity: 960 },
+        30: { type: "SP12-250", quantity: 1120 },
+        45: { type: "SP12-250", quantity: 1280 },
+        60: { type: "SP12-250", quantity: 1440 },
+        90: { type: "SP12-250", quantity: 1600 }
+      },
+      "UE-6000TAL": {
+        5: { type: "SP12-250", quantity: 720 },
+        10: { type: "SP12-250", quantity: 800 },
+        15: { type: "SP12-250", quantity: 960 },
+        20: { type: "SP12-250", quantity: 1120 },
+        30: { type: "SP12-250", quantity: 1280 },
+        45: { type: "SP12-250", quantity: 1440 },
+        60: { type: "SP12-250", quantity: 1600 },
+        90: { type: "SP12-250", quantity: 1760 }
+      },
+      "UE-8000TAL": {
+        5: { type: "SP12-250", quantity: 800 },
+        10: { type: "SP12-250", quantity: 960 },
+        15: { type: "SP12-250", quantity: 1120 },
+        20: { type: "SP12-250", quantity: 1280 },
+        30: { type: "SP12-250", quantity: 1440 },
+        45: { type: "SP12-250", quantity: 1600 },
+        60: { type: "SP12-250", quantity: 1760 },
+        90: { type: "SP12-250", quantity: 1920 }
+      },
+      
+      // UM Series - Frame 90 (15-90 kVA)
       "UM-0900TFL-15": {
-        5: { type: "SP12-18", quantity: 40 },
-        10: { type: "SP12-26", quantity: 40 },
-        15: { type: "SP12-38", quantity: 40 },
-        20: { type: "SP12-42", quantity: 40 },
-        30: { type: "SP12-50", quantity: 40 },
-        45: { type: "SP12-65", quantity: 40 },
-        60: { type: "SP12-100", quantity: 40 },
-        90: { type: "SP12-120", quantity: 40 }
+        5: { type: "SP12-80", quantity: 40 },
+        10: { type: "SP12-100", quantity: 40 },
+        15: { type: "SP12-120", quantity: 40 },
+        20: { type: "SP12-150", quantity: 40 },
+        30: { type: "SP12-200", quantity: 40 },
+        45: { type: "SP12-250", quantity: 40 },
+        60: { type: "SP12-250", quantity: 80 },
+        90: { type: "SP12-250", quantity: 120 }
       },
+      "UM-0900TFL-30": {
+        5: { type: "SP12-120", quantity: 40 },
+        10: { type: "SP12-150", quantity: 40 },
+        15: { type: "SP12-200", quantity: 40 },
+        20: { type: "SP12-250", quantity: 40 },
+        30: { type: "SP12-250", quantity: 80 },
+        45: { type: "SP12-250", quantity: 120 },
+        60: { type: "SP12-250", quantity: 160 },
+        90: { type: "SP12-250", quantity: 200 }
+      },
+      "UM-0900TFL-45": {
+        5: { type: "SP12-150", quantity: 40 },
+        10: { type: "SP12-200", quantity: 40 },
+        15: { type: "SP12-250", quantity: 40 },
+        20: { type: "SP12-250", quantity: 80 },
+        30: { type: "SP12-250", quantity: 120 },
+        45: { type: "SP12-250", quantity: 160 },
+        60: { type: "SP12-250", quantity: 200 },
+        90: { type: "SP12-250", quantity: 240 }
+      },
+      "UM-0900TFL-60": {
+        5: { type: "SP12-200", quantity: 40 },
+        10: { type: "SP12-250", quantity: 40 },
+        15: { type: "SP12-250", quantity: 80 },
+        20: { type: "SP12-250", quantity: 120 },
+        30: { type: "SP12-250", quantity: 160 },
+        45: { type: "SP12-250", quantity: 200 },
+        60: { type: "SP12-250", quantity: 240 },
+        90: { type: "SP12-250", quantity: 320 }
+      },
+      "UM-0900TFL-75": {
+        5: { type: "SP12-250", quantity: 40 },
+        10: { type: "SP12-250", quantity: 80 },
+        15: { type: "SP12-250", quantity: 120 },
+        20: { type: "SP12-250", quantity: 160 },
+        30: { type: "SP12-250", quantity: 200 },
+        45: { type: "SP12-250", quantity: 240 },
+        60: { type: "SP12-250", quantity: 320 },
+        90: { type: "SP12-250", quantity: 400 }
+      },
+      "UM-0900TFL-90": {
+        5: { type: "SP12-250", quantity: 80 },
+        10: { type: "SP12-250", quantity: 120 },
+        15: { type: "SP12-250", quantity: 160 },
+        20: { type: "SP12-250", quantity: 200 },
+        30: { type: "SP12-250", quantity: 240 },
+        45: { type: "SP12-250", quantity: 320 },
+        60: { type: "SP12-250", quantity: 400 },
+        90: { type: "SP12-250", quantity: 480 }
+      },
+      
+      // UM Series - Frame 120 (20-120 kVA) - all use high-capacity batteries
       "UM-1200TFL-20": {
-        5: { type: "SP12-26", quantity: 40 },
-        10: { type: "SP12-38", quantity: 40 },
-        15: { type: "SP12-50", quantity: 40 },
-        20: { type: "SP12-65", quantity: 40 },
-        30: { type: "SP12-80", quantity: 40 },
-        45: { type: "SP12-100", quantity: 40 },
-        60: { type: "SP12-150", quantity: 40 },
-        90: { type: "SP12-200", quantity: 40 }
+        5: { type: "SP12-100", quantity: 40 },
+        10: { type: "SP12-120", quantity: 40 },
+        15: { type: "SP12-150", quantity: 40 },
+        20: { type: "SP12-200", quantity: 40 },
+        30: { type: "SP12-250", quantity: 40 },
+        45: { type: "SP12-250", quantity: 80 },
+        60: { type: "SP12-250", quantity: 120 },
+        90: { type: "SP12-250", quantity: 160 }
       },
-      // Большие UM модели используют больше батарей
-      "UM-1500TFL-30": {
-        5: { type: "SP12-38", quantity: 80 },
-        10: { type: "SP12-50", quantity: 80 },
-        15: { type: "SP12-65", quantity: 80 },
-        20: { type: "SP12-80", quantity: 80 },
-        30: { type: "SP12-100", quantity: 80 },
-        45: { type: "SP12-150", quantity: 80 },
-        60: { type: "SP12-200", quantity: 80 },
-        90: { type: "SP12-250", quantity: 80 }
-      }
-      // Добавим больше конфигураций по мере необходимости
+      "UM-1200TFL-40": {
+        5: { type: "SP12-150", quantity: 40 },
+        10: { type: "SP12-200", quantity: 40 },
+        15: { type: "SP12-250", quantity: 40 },
+        20: { type: "SP12-250", quantity: 80 },
+        30: { type: "SP12-250", quantity: 120 },
+        45: { type: "SP12-250", quantity: 160 },
+        60: { type: "SP12-250", quantity: 200 },
+        90: { type: "SP12-250", quantity: 240 }
+      },
+      "UM-1200TFL-60": {
+        5: { type: "SP12-200", quantity: 40 },
+        10: { type: "SP12-250", quantity: 40 },
+        15: { type: "SP12-250", quantity: 80 },
+        20: { type: "SP12-250", quantity: 120 },
+        30: { type: "SP12-250", quantity: 160 },
+        45: { type: "SP12-250", quantity: 200 },
+        60: { type: "SP12-250", quantity: 240 },
+        90: { type: "SP12-250", quantity: 320 }
+      },
+      "UM-1200TFL-80": {
+        5: { type: "SP12-250", quantity: 40 },
+        10: { type: "SP12-250", quantity: 80 },
+        15: { type: "SP12-250", quantity: 120 },
+        20: { type: "SP12-250", quantity: 160 },
+        30: { type: "SP12-250", quantity: 200 },
+        45: { type: "SP12-250", quantity: 240 },
+        60: { type: "SP12-250", quantity: 320 },
+        90: { type: "SP12-250", quantity: 400 }
+      },
+      "UM-1200TFL-100": {
+        5: { type: "SP12-250", quantity: 80 },
+        10: { type: "SP12-250", quantity: 120 },
+        15: { type: "SP12-250", quantity: 160 },
+        20: { type: "SP12-250", quantity: 200 },
+        30: { type: "SP12-250", quantity: 240 },
+        45: { type: "SP12-250", quantity: 320 },
+        60: { type: "SP12-250", quantity: 400 },
+        90: { type: "SP12-250", quantity: 480 }
+      },
+             "UM-1200TFL-120": {
+         5: { type: "SP12-250", quantity: 120 },
+         10: { type: "SP12-250", quantity: 160 },
+         15: { type: "SP12-250", quantity: 200 },
+         20: { type: "SP12-250", quantity: 240 },
+         30: { type: "SP12-250", quantity: 320 },
+         45: { type: "SP12-250", quantity: 400 },
+         60: { type: "SP12-250", quantity: 480 },
+         90: { type: "SP12-250", quantity: 600 }
+       },
+       
+       // UM Series - Frame 125 (25-125 kVA) - all use high-capacity batteries
+       "UM-1250TFL-25": {
+         5: { type: "SP12-120", quantity: 40 },
+         10: { type: "SP12-150", quantity: 40 },
+         15: { type: "SP12-200", quantity: 40 },
+         20: { type: "SP12-250", quantity: 40 },
+         30: { type: "SP12-250", quantity: 80 },
+         45: { type: "SP12-250", quantity: 120 },
+         60: { type: "SP12-250", quantity: 160 },
+         90: { type: "SP12-250", quantity: 200 }
+       },
+       "UM-1250TFL-50": {
+         5: { type: "SP12-200", quantity: 40 },
+         10: { type: "SP12-250", quantity: 40 },
+         15: { type: "SP12-250", quantity: 80 },
+         20: { type: "SP12-250", quantity: 120 },
+         30: { type: "SP12-250", quantity: 160 },
+         45: { type: "SP12-250", quantity: 200 },
+         60: { type: "SP12-250", quantity: 240 },
+         90: { type: "SP12-250", quantity: 320 }
+       },
+       "UM-1250TFL-75": {
+         5: { type: "SP12-250", quantity: 40 },
+         10: { type: "SP12-250", quantity: 80 },
+         15: { type: "SP12-250", quantity: 120 },
+         20: { type: "SP12-250", quantity: 160 },
+         30: { type: "SP12-250", quantity: 200 },
+         45: { type: "SP12-250", quantity: 240 },
+         60: { type: "SP12-250", quantity: 320 },
+         90: { type: "SP12-250", quantity: 400 }
+       },
+       "UM-1250TFL-100": {
+         5: { type: "SP12-250", quantity: 80 },
+         10: { type: "SP12-250", quantity: 120 },
+         15: { type: "SP12-250", quantity: 160 },
+         20: { type: "SP12-250", quantity: 200 },
+         30: { type: "SP12-250", quantity: 240 },
+         45: { type: "SP12-250", quantity: 320 },
+         60: { type: "SP12-250", quantity: 400 },
+         90: { type: "SP12-250", quantity: 480 }
+       },
+       "UM-1250TFL-125": {
+         5: { type: "SP12-250", quantity: 120 },
+         10: { type: "SP12-250", quantity: 160 },
+         15: { type: "SP12-250", quantity: 200 },
+         20: { type: "SP12-250", quantity: 240 },
+         30: { type: "SP12-250", quantity: 320 },
+         45: { type: "SP12-250", quantity: 400 },
+         60: { type: "SP12-250", quantity: 480 },
+         90: { type: "SP12-250", quantity: 600 }
+       },
+       
+       // UM Series - Frame 150 and above (150kVA+) - all use SP12-250 with high quantities
+       // These large systems require only the highest capacity batteries
+       "UM-1500TFL-30": {
+         5: { type: "SP12-250", quantity: 160 },
+         10: { type: "SP12-250", quantity: 200 },
+         15: { type: "SP12-250", quantity: 240 },
+         20: { type: "SP12-250", quantity: 320 },
+         30: { type: "SP12-250", quantity: 400 },
+         45: { type: "SP12-250", quantity: 480 },
+         60: { type: "SP12-250", quantity: 600 },
+         90: { type: "SP12-250", quantity: 720 }
+       },
+       "UM-1500TFL-60": {
+         5: { type: "SP12-250", quantity: 240 },
+         10: { type: "SP12-250", quantity: 320 },
+         15: { type: "SP12-250", quantity: 400 },
+         20: { type: "SP12-250", quantity: 480 },
+         30: { type: "SP12-250", quantity: 600 },
+         45: { type: "SP12-250", quantity: 720 },
+         60: { type: "SP12-250", quantity: 800 },
+         90: { type: "SP12-250", quantity: 960 }
+       },
+       "UM-1500TFL-90": {
+         5: { type: "SP12-250", quantity: 320 },
+         10: { type: "SP12-250", quantity: 400 },
+         15: { type: "SP12-250", quantity: 480 },
+         20: { type: "SP12-250", quantity: 600 },
+         30: { type: "SP12-250", quantity: 720 },
+         45: { type: "SP12-250", quantity: 800 },
+         60: { type: "SP12-250", quantity: 960 },
+         90: { type: "SP12-250", quantity: 1120 }
+       },
+       "UM-1500TFL-120": {
+         5: { type: "SP12-250", quantity: 400 },
+         10: { type: "SP12-250", quantity: 480 },
+         15: { type: "SP12-250", quantity: 600 },
+         20: { type: "SP12-250", quantity: 720 },
+         30: { type: "SP12-250", quantity: 800 },
+         45: { type: "SP12-250", quantity: 960 },
+         60: { type: "SP12-250", quantity: 1120 },
+         90: { type: "SP12-250", quantity: 1280 }
+       },
+       "UM-1500TFL-150": {
+         5: { type: "SP12-250", quantity: 480 },
+         10: { type: "SP12-250", quantity: 600 },
+         15: { type: "SP12-250", quantity: 720 },
+         20: { type: "SP12-250", quantity: 800 },
+         30: { type: "SP12-250", quantity: 960 },
+         45: { type: "SP12-250", quantity: 1120 },
+         60: { type: "SP12-250", quantity: 1280 },
+         90: { type: "SP12-250", quantity: 1440 }
+       }
+       
+       // Note: For all UM Series models 150kVA and above, only SP12-250 batteries are used
+       // with quantities calculated based on capacity. This ensures that small batteries
+       // like SP12-18, SP12-26, SP12-38, etc. are never shown for high-power applications.
+       // All other large UM models follow similar patterns with SP12-250 batteries only.
     };
 
+    // Check if we have a specific configuration for this UPS model
     const config = batteryConfigurations[upsProduct.model]?.[backupTime];
+    
     if (!config) {
-      // Fallback для неопределенных конфигураций
+      // Enhanced fallback logic based on UPS capacity to ensure appropriate battery selection
+      let fallbackBatteryType: BatteryType;
+      let fallbackQuantity: number;
+      
+      if (upsProduct.capacity <= 15) {
+        fallbackBatteryType = "SP12-80";
+        fallbackQuantity = 40;
+      } else if (upsProduct.capacity <= 30) {
+        fallbackBatteryType = "SP12-120";
+        fallbackQuantity = 40;
+      } else if (upsProduct.capacity <= 60) {
+        fallbackBatteryType = "SP12-200";
+        fallbackQuantity = 40;
+      } else if (upsProduct.capacity <= 120) {
+        fallbackBatteryType = "SP12-250";
+        fallbackQuantity = 80;
+      } else if (upsProduct.capacity <= 300) {
+        fallbackBatteryType = "SP12-250";
+        fallbackQuantity = 160;
+      } else if (upsProduct.capacity <= 600) {
+        fallbackBatteryType = "SP12-250";
+        fallbackQuantity = 320;
+      } else {
+        fallbackBatteryType = "SP12-250";
+        fallbackQuantity = 480;
+      }
+      
+      // Adjust quantity based on backup time
+      const timeMultiplier = backupTime <= 15 ? 1 : backupTime <= 30 ? 1.2 : backupTime <= 60 ? 1.5 : 2;
+      fallbackQuantity = Math.ceil(fallbackQuantity * timeMultiplier);
+      
+      const fallbackSpec = BATTERY_SPECS.find(spec => spec.type === fallbackBatteryType) || BATTERY_SPECS[0];
+      const fallbackRacks = Math.ceil(fallbackQuantity / 40);
+      
       return {
-        quantity: 40,
-        racks: 1,
-        spec: BATTERY_SPECS.find(spec => spec.type === "SP12-50") || BATTERY_SPECS[0]
+        quantity: fallbackQuantity,
+        racks: fallbackRacks,
+        spec: fallbackSpec
       };
     }
 
@@ -1713,18 +2054,23 @@ export default function UPSConfiguratorPage() {
           
           {/* Enhanced battery selection grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
-            {BATTERY_SPECS.map((spec) => {
+            {BATTERY_SPECS.filter((spec) => {
+              // Filter battery types based on UPS capacity - only show appropriate batteries
+              if (!selectedProduct) return true;
+              const appropriateTypes = getAppropriatesBatteryTypes(selectedProduct.capacity);
+              return appropriateTypes.includes(spec.type);
+            }).map((spec) => {
               const isSelected = selectedBatteryType === spec.type;
               const isRecommended = batteryRequirements && spec.type === batteryRequirements.spec.type;
               
-              // Рассчитываем правильное количество батарей для этого типа
+              // Calculate correct battery quantity for this type
               let batteryCountForThisType = 40; // default
               if (selectedProduct && selectedBatteryTime) {
                 if (isRecommended && batteryRequirements) {
-                  // Для рекомендуемого типа используем точное количество из конфигурации
+                  // For recommended type, use exact quantity from configuration
                   batteryCountForThisType = batteryRequirements.quantity;
                 } else {
-                  // Для всех других типов рассчитываем количество на основе мощности ИБП
+                  // For all other types, calculate quantity based on UPS capacity
                   batteryCountForThisType = calculateBatteryQuantityForType(selectedProduct, selectedBatteryTime, spec.type);
                 }
               }
@@ -2345,63 +2691,100 @@ export default function UPSConfiguratorPage() {
     }
   };
 
+  // Get appropriate battery types for a given UPS capacity
+  const getAppropriatesBatteryTypes = (upsCapacity: number): BatteryType[] => {
+    // Return battery types that are appropriate for the UPS capacity
+    // This prevents showing small batteries for large UPS systems
+    if (upsCapacity <= 15) {
+      return ["SP12-65", "SP12-80", "SP12-100", "SP12-120", "SP12-150"];
+    } else if (upsCapacity <= 30) {
+      return ["SP12-80", "SP12-100", "SP12-120", "SP12-150", "SP12-200"];
+    } else if (upsCapacity <= 60) {
+      return ["SP12-100", "SP12-120", "SP12-150", "SP12-200", "SP12-250"];
+    } else if (upsCapacity <= 120) {
+      return ["SP12-150", "SP12-200", "SP12-250"];
+    } else if (upsCapacity <= 300) {
+      return ["SP12-200", "SP12-250"];
+    } else {
+      // For large UPS systems (300kVA+), only show SP12-250
+      return ["SP12-250"];
+    }
+  };
+
   // Calculate battery quantity for any battery type based on UPS capacity and backup time
   const calculateBatteryQuantityForType = (upsProduct: UPSProduct, backupTime: BatteryTime, batteryType: BatteryType): number => {
     if (!upsProduct || !backupTime || !batteryType) return 40;
 
-    // Base quantity calculation based on UPS capacity and type
-    let baseQuantity = 40; // default for small UPS
+    // Enhanced quantity calculation based on UPS capacity, battery type, and backup time
+    let baseQuantity = 40;
     
-    // Determine base quantity based on UPS series and capacity
-    if (upsProduct.type === "UR") {
-      // UR series: always 40 batteries regardless of capacity
+    // Calculate base quantity based on UPS capacity and battery type efficiency
+    const batterySpec = BATTERY_SPECS.find(spec => spec.type === batteryType);
+    if (!batterySpec) return 40;
+    
+    // More accurate calculation based on actual UPS power requirements
+    // Higher capacity UPS systems need more batteries, especially for longer backup times
+    if (upsProduct.capacity <= 15) {
       baseQuantity = 40;
-    } else if (upsProduct.type === "UE") {
-      // UE series: capacity-based
-      if (upsProduct.capacity <= 30) {
-        baseQuantity = 40;
-      } else if (upsProduct.capacity <= 160) {
-        baseQuantity = 40;
-      } else {
-        baseQuantity = 80; // Higher capacity UE models
-      }
-    } else if (upsProduct.type === "UM") {
-      // UM series: frame-based
-      if (upsProduct.capacity <= 90) {
-        baseQuantity = 40;
-      } else if (upsProduct.capacity <= 300) {
-        baseQuantity = 80;
-      } else {
-        baseQuantity = 120; // Large UM models
-      }
+    } else if (upsProduct.capacity <= 30) {
+      baseQuantity = 40;
+    } else if (upsProduct.capacity <= 60) {
+      baseQuantity = 80;
+    } else if (upsProduct.capacity <= 120) {
+      baseQuantity = 120;
+    } else if (upsProduct.capacity <= 300) {
+      baseQuantity = 160;
+    } else if (upsProduct.capacity <= 600) {
+      baseQuantity = 320;
+    } else {
+      baseQuantity = 480;
     }
 
-    // Time multiplier based on backup time requirements
+    // Adjust quantity based on backup time requirements
     let timeMultiplier = 1;
     switch (backupTime) {
       case 5:
+        timeMultiplier = 0.6;
+        break;
       case 10:
-        timeMultiplier = 1;
+        timeMultiplier = 0.8;
         break;
       case 15:
-      case 20:
         timeMultiplier = 1;
+        break;
+      case 20:
+        timeMultiplier = 1.2;
         break;
       case 30:
-        timeMultiplier = 1;
+        timeMultiplier = 1.5;
         break;
       case 45:
+        timeMultiplier = 2;
+        break;
       case 60:
-        timeMultiplier = 1; // For longer times, we might need different battery types, not more batteries
+        timeMultiplier = 2.5;
         break;
       case 90:
-        timeMultiplier = 1;
+        timeMultiplier = 3;
         break;
       default:
         timeMultiplier = 1;
     }
 
-    return baseQuantity * timeMultiplier;
+    // Adjust based on battery capacity - higher capacity batteries need fewer units
+    let capacityMultiplier = 1;
+    if (batteryType === "SP12-18" || batteryType === "SP12-26") {
+      capacityMultiplier = 2; // Small batteries need more units
+    } else if (batteryType === "SP12-38" || batteryType === "SP12-42") {
+      capacityMultiplier = 1.5;
+    } else if (batteryType === "SP12-250") {
+      capacityMultiplier = 0.8; // Large batteries need fewer units
+    }
+
+    const calculatedQuantity = Math.ceil(baseQuantity * timeMultiplier * capacityMultiplier);
+    
+    // Ensure minimum 40 batteries and round to multiples of 40 for rack efficiency
+    return Math.max(40, Math.ceil(calculatedQuantity / 40) * 40);
   };
 
   // Configuration Sidebar Component
