@@ -3019,20 +3019,25 @@ export default function UPSConfiguratorPage() {
                   {(() => {
                     const imageMapping = getUPSImageMapping(selectedProduct.type, selectedProduct.frame, selectedProduct.capacity);
                     
-                    const handleDownload = () => {
-                      console.log('Download clicked for:', {
-                        url: imageMapping.documentationUrl,
-                        name: imageMapping.documentationName,
-                        fullUrl: window.location.origin + imageMapping.documentationUrl
-                      });
-                      
-                      const link = document.createElement('a');
-                      link.href = imageMapping.documentationUrl;
-                      link.download = imageMapping.documentationName + '.pdf';
-                      link.target = '_blank';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
+                    const handleDownload = async () => {
+                      try {
+                        const response = await fetch(imageMapping.documentationUrl);
+                        if (!response.ok) {
+                          throw new Error('Network response was not ok');
+                        }
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = imageMapping.documentationName + '.pdf';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                      } catch (error) {
+                        console.error('Download failed:', error);
+                        // Optionally, show an error message to the user
+                      }
                     };
                     
                     return (
