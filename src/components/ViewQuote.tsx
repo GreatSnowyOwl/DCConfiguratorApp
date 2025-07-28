@@ -197,6 +197,23 @@ export default function ViewQuote() {
         // Backend should return the full quote object including quoteType and all necessary fields.
         if (responseData.success && responseData.data) {
             let quote = responseData.data;
+            
+            console.log('Raw quote data from backend:', quote);
+            
+            // Detect UPS quotes if not properly set - check name pattern first
+            if (quote.name && (quote.name.startsWith('UPS:') || quote.name.includes('UPS:'))) {
+              quote.quoteType = 'UPS';
+              console.log('Auto-detected UPS quote type from name');
+            }
+            
+            // If configData is present and contains UPS structure, force UPS type
+            if (quote.configData && typeof quote.configData === 'object' && 
+                quote.configData.selectedProduct) {
+              quote.quoteType = 'UPS';
+              quote.upsConfigData = quote.configData;
+              console.log('Auto-detected UPS quote type from configData structure');
+            }
+            
             // Ensure configData for DC quotes is parsed if it's a string
             if (quote.quoteType === 'DC' && typeof quote.configData === 'string') {
                  try {
@@ -206,12 +223,16 @@ export default function ViewQuote() {
                      throw new Error('Failed to parse DC configuration data from quote.');
                  }
             }
-            // Ensure date is in ISO format (parseDateToISO is defined in PartnerDashboard, 
-            // ideally it should be in a shared utils file if used in multiple places, 
-            // or we assume backend provides ISO for single quote view)
-            // For now, we'll assume the backend sends a directly usable date string for single view,
-            // or it was already processed if this component somehow gets data from PartnerDashboard state.
-            // If fetching directly, it's best if backend provides ISO.
+            
+            // For UPS quotes, ensure upsConfigData is set
+            if (quote.quoteType === 'UPS') {
+              if (!quote.upsConfigData && quote.configData) {
+                quote.upsConfigData = quote.configData;
+                console.log('Moved configData to upsConfigData for UPS quote');
+              }
+            }
+            
+            console.log('Processed quote data:', quote);
             setQuoteData(quote as UnifiedQuoteType); 
         } else {
             throw new Error(responseData.message || 'Invalid or incomplete data format received from server.');
@@ -1408,6 +1429,153 @@ export default function ViewQuote() {
     );
   }
 
+  const renderUPSQuoteDetails = () => {
+    console.log('[renderUPSQuoteDetails] Called with quoteData:', quoteData);
+    console.log('[renderUPSQuoteDetails] quoteType:', quoteData?.quoteType);
+    console.log('[renderUPSQuoteDetails] upsConfigData:', quoteData?.upsConfigData);
+    console.log('[renderUPSQuoteDetails] configData:', quoteData?.configData);
+    
+    if (!quoteData || quoteData.quoteType !== 'UPS') {
+      console.error("[ViewQuote] Quote is not UPS type. quoteType:", quoteData?.quoteType);
+      return <p className="text-center text-red-400 py-4">Ошибка: Котировка не является UPS типом.</p>;
+    }
+    
+    if (!quoteData.upsConfigData && !quoteData.configData) {
+      console.error("[ViewQuote] UPS quote is missing both upsConfigData and configData.", quoteData);
+      return <p className="text-center text-red-400 py-4">Ошибка: Данные конфигурации для UPS квоты отсутствуют.</p>;
+    }
+
+    // Use upsConfigData if available, otherwise fall back to configData
+    const configData = quoteData.upsConfigData || quoteData.configData;
+    console.log('[renderUPSQuoteDetails] Using configData:', configData);
+    
+    // Just use the exact data that was saved from the configurator
+    const {
+      selectedProduct,
+      selectedBatteryTime,
+      bcbBoxConfig,
+      selectedPNRService,
+      selectedWarrantyOption,
+      totalCost
+    } = configData;
+
+    const { total_cost } = quoteData;
+
+    if (!selectedProduct) {
+      return <p className="text-center text-white/70 py-4">Информация о выбранном ИБП отсутствует в этой квоте.</p>;
+    }
+
+    return (
+      <div className="space-y-6">
+        <h3 className="text-2xl font-bold text-[#8AB73A] mb-6">Полная конфигурация UPS</h3>
+        
+        {/* UPS Section */}
+        <div className="bg-[#061640]/50 border-2 border-white/20 rounded-xl p-6">
+          <h4 className="text-xl text-[#8AB73A] mb-4 border-b border-white/20 pb-2">ИБП</h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-white/70">Модель:</span>
+              <span className="text-white font-medium">{selectedProduct.model}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Мощность:</span>
+              <span className="text-[#8AB73A] font-bold">{selectedProduct.capacity} kVA</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Тип:</span>
+              <span className="text-white font-medium">
+                {selectedProduct.type === 'UR' ? 'Стоечный' : 
+                 selectedProduct.type === 'UE' ? 'Напольный' : 'Модульный'}
+              </span>
+            </div>
+            {selectedProduct.type === 'UM' && selectedProduct.frame && (
+              <div className="flex justify-between">
+                <span className="text-white/70">Рамка:</span>
+                <span className="text-white font-medium">{selectedProduct.frame}</span>
+              </div>
+            )}
+                         <div className="flex justify-between items-center pt-2 border-t border-white/10">
+               <span className="text-white/70">Стоимость:</span>
+               <span className="text-[#8AB73A] font-bold">${(selectedProduct.priceUSD || 0).toLocaleString()}</span>
+             </div>
+          </div>
+        </div>
+
+        {/* Battery Section */}
+        <div className="bg-[#061640]/50 border-2 border-white/20 rounded-xl p-6">
+          <h4 className="text-xl text-[#8AB73A] mb-4 border-b border-white/20 pb-2">Батареи</h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-white/70">Время поддержки:</span>
+              <span className="text-white font-medium">{selectedBatteryTime} мин</span>
+            </div>
+          </div>
+        </div>
+
+        {/* BCB-BOX Section */}
+        {bcbBoxConfig && (
+          <div className="bg-[#061640]/50 border-2 border-white/20 rounded-xl p-6">
+            <h4 className="text-xl text-[#8AB73A] mb-4 border-b border-white/20 pb-2">BCB-BOX</h4>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-white/70">Модель:</span>
+                <span className="text-white font-medium">{bcbBoxConfig.bcb_box}</span>
+              </div>
+                             <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                 <span className="text-white/70">Стоимость:</span>
+                 <span className="text-[#8AB73A] font-bold">${(bcbBoxConfig?.priceUSD || 0).toLocaleString()}</span>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* PNR Services Section */}
+        {selectedPNRService && (
+          <div className="bg-[#061640]/50 border-2 border-white/20 rounded-xl p-6">
+            <h4 className="text-xl text-[#8AB73A] mb-4 border-b border-white/20 pb-2">ПНР услуги</h4>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-white/70">Услуга:</span>
+                <span className="text-white font-medium">Пуско-наладочные работы</span>
+              </div>
+                             <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                 <span className="text-white/70">Стоимость:</span>
+                 <span className="text-[#8AB73A] font-bold">Включено</span>
+               </div>
+             </div>
+           </div>
+         )}
+ 
+         {/* Warranty Section */}
+         {selectedWarrantyOption && (
+           <div className="bg-[#061640]/50 border-2 border-white/20 rounded-xl p-6">
+             <h4 className="text-xl text-[#8AB73A] mb-4 border-b border-white/20 pb-2">Расширенная гарантия</h4>
+             <div className="space-y-3">
+               <div className="flex justify-between">
+                 <span className="text-white/70">Тип:</span>
+                 <span className="text-white font-medium">Расширенная гарантия</span>
+               </div>
+               <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                 <span className="text-white/70">Стоимость:</span>
+                 <span className="text-[#8AB73A] font-bold">Включено</span>
+               </div>
+             </div>
+           </div>
+         )}
+ 
+         {/* Total Cost */}
+         <div className="bg-gradient-to-r from-[#8AB73A]/20 to-[#8AB73A]/10 rounded-lg">
+           <div className="flex justify-between items-center p-6">
+             <h3 className="text-xl font-bold text-[#8AB73A]">Общая стоимость</h3>
+             <span className="text-2xl font-bold text-[#8AB73A]">
+               ${(totalCost || total_cost || 0).toLocaleString()}
+             </span>
+           </div>
+         </div>
+      </div>
+    );
+  };
+
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat relative p-6 md:p-8"
@@ -1461,7 +1629,17 @@ export default function ViewQuote() {
             {!isLoading && !error && quoteData && (
               <>
                 {(() => {
-                  if (quoteData.quoteType === 'DC') {
+                  console.log('[Main render] quoteData.quoteType:', quoteData.quoteType);
+                  console.log('[Main render] quoteData.name:', quoteData.name);
+                  
+                  // Check if this is a UPS quote by name pattern if quoteType is not set correctly
+                  const isUPSQuote = quoteData.quoteType === 'UPS' || 
+                                   (quoteData.name && quoteData.name.startsWith('UPS:'));
+                  
+                  if (isUPSQuote) {
+                    console.log('[Main render] Rendering as UPS quote');
+                    return renderUPSQuoteDetails();
+                  } else if (quoteData.quoteType === 'DC') {
                     return (
                       <>
                         {renderDCQuoteCustomerInfo()}
@@ -1471,7 +1649,7 @@ export default function ViewQuote() {
                   } else if (quoteData.quoteType === 'CRAC') {
                     return renderCRACQuoteDetails();
                   } else {
-                    return <p className="text-center text-white/80 py-8">Не удалось определить тип квоты.</p>;
+                    return <p className="text-center text-white/80 py-8">Не удалось определить тип квоты. Type: {quoteData.quoteType}, Name: {quoteData.name}</p>;
                   }
                 })()}
 

@@ -78,11 +78,11 @@ interface CRACQuoteSelections {
 }
 
 export interface Quote {
-  id: string | number; // number for old DC, string for new CRAC
+  id: string | number; // number for old DC, string for new CRAC/UPS
   name: string;
   date: string;
   total_cost: number; // Should be present in both
-  quoteType: 'DC' | 'CRAC';
+  quoteType: 'DC' | 'CRAC' | 'UPS';
 
   // DC Specific (optional)
   configData?: DCQuoteConfigData;
@@ -92,6 +92,9 @@ export interface Quote {
   selectedAccessories?: CRACQuoteAccessory[];
   productImageSrc?: string | null;
   configSelections?: CRACQuoteSelections;
+
+  // UPS Specific (optional)
+  upsConfigData?: any; // Will be detailed UPS configuration
 }
 
 // Catalog path (assuming it's in the public folder)
@@ -252,8 +255,19 @@ export default function PartnerDashboard() {
           // Ensure `quoteType` is present and date is parsed.
           allServerQuotes = (responseData.data || []).map((q: any) => {
             // The backend should ideally set quoteType. If not, we might need to infer or default.
-            // For now, assume backend sends quoteType or we default/error if missing.
-            const quoteType = q.quoteType === 'CRAC' ? 'CRAC' : 'DC'; 
+            // Support DC, CRAC, and UPS quote types
+            let quoteType: 'DC' | 'CRAC' | 'UPS' = 'DC';
+            
+            // Check explicit quoteType first
+            if (q.quoteType === 'CRAC') {
+              quoteType = 'CRAC';
+            } else if (q.quoteType === 'UPS') {
+              quoteType = 'UPS';
+            } else if (q.name && q.name.startsWith('UPS:')) {
+              // Fallback: detect UPS quotes by name pattern
+              quoteType = 'UPS';
+            }
+            
             return { 
               ...q, 
               quoteType: quoteType, 
@@ -428,7 +442,7 @@ export default function PartnerDashboard() {
                 <CardTitle className="text-xl md:text-2xl font-semibold text-center">Конфигуратор UPS</CardTitle>
               </CardHeader>
               <CardContent>
-                <Button asChild className="w-full bg-[#e53e3e]/80 hover:bg-[#e53e3e] text-white h-12 text-base font-semibold rounded-lg backdrop-blur-sm border border-red-400/50 shadow-lg hover:shadow-red-500/30 transition-all duration-300">
+                <Button asChild className="w-full bg-gradient-to-r from-[#8AB73A]/80 via-[#1e88e5]/80 to-[#8AB73A]/80 hover:from-[#8AB73A] hover:via-[#1e88e5] hover:to-[#8AB73A] text-white h-12 text-base font-semibold rounded-lg backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-[#8AB73A]/30 transition-all duration-300 bg-size-200 bg-pos-0 hover:bg-pos-100">
                   <Link to="/upsconfig">Открыть UPS конфигуратор</Link>
                 </Button>
               </CardContent>
@@ -630,9 +644,11 @@ export default function PartnerDashboard() {
                             className={`px-1.5 py-0.5 text-xs font-semibold rounded-full w-fit mt-1.5 ${ 
                               quote.quoteType === 'CRAC' 
                                 ? 'bg-sky-500/20 text-sky-300' 
+                                : quote.quoteType === 'UPS'
+                                ? 'bg-gradient-to-r from-[#8AB73A]/20 to-[#1e88e5]/20 text-[#8AB73A] border border-[#8AB73A]/30'
                                 : 'bg-emerald-500/20 text-emerald-300'
                             }`}>
-                            {quote.quoteType === 'CRAC' ? 'AC' : 'DC'}
+                            {quote.quoteType === 'CRAC' ? 'AC' : quote.quoteType === 'UPS' ? 'UPS' : 'DC'}
                           </span>
                           {quote.quoteType === 'DC' && quote.configData?.customerName && (
                             <span className="text-sm text-[#8AB73A]/80 mt-1.5 flex items-center truncate">

@@ -96,6 +96,10 @@
   }
 }
 
+html,body {
+  @apply bg-[var(--c-bg)] text-white font-sans;
+}
+
 /* Custom slider styling */
 input[type="range"].slider {
   -webkit-appearance: none;
@@ -175,3 +179,20 @@ input[type="range"].slider::-moz-range-track {
   /* Ensure hover cards are not clipped */
   overflow: visible !important;
 }
+
+/* Custom gradient animation utilities */
+@layer utilities {
+  .bg-size-200 {
+    background-size: 200% 200%;
+  }
+  
+  .bg-pos-0 {
+    background-position: 0% 50%;
+  }
+  
+  .bg-pos-100 {
+    background-position: 100% 50%;
+  }
+}
+
+@import "./styles/hitech.css";

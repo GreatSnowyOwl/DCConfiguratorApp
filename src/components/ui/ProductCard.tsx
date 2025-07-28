@@ -11,7 +11,7 @@ interface ProductCardProps {
   type: 'IT' | 'AC'; // UPS type - for IT load or AC load
 }
 
-export const ProductCard = ({ model, power, description, type }: ProductCardProps) => {
+export const ProductCard = React.memo(({ model, power, description, type }: ProductCardProps) => {
   // Determine which icon to use based on model prefix and type
   const isModular = model.startsWith('UM');
   
@@ -126,4 +126,4 @@ export const ProductCard = ({ model, power, description, type }: ProductCardProp
       </Card>
     </motion.div>
   );
-}; 
+}); 

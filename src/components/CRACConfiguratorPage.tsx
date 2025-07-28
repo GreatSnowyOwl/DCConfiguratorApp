@@ -1042,6 +1042,15 @@ export default function CRACConfiguratorPage() {
       <div className="absolute inset-0 bg-[#0A2B6C] bg-opacity-80 z-0"></div>
       <header className="relative z-10 w-full max-w-7xl flex items-center justify-between mb-8 md:mb-12 px-4">
         <img src={logoImage} alt="iTeaQ Logo" className="h-10 md:h-12" />
+        <Button 
+          onClick={() => navigate('/dashboard')}
+          variant="outline"
+          className="relative group bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/15 hover:border-white/30 transition-all duration-300 text-sm px-4 py-2 transform hover:scale-105 shadow-lg shadow-black/20 rounded-md"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md"></div>
+          <span className="relative z-10 hidden sm:inline font-medium drop-shadow-sm">Панель</span>
+          <span className="relative z-10 sm:hidden drop-shadow-sm">←</span>
+        </Button>
       </header>
 
       <div className="relative z-10 w-full max-w-7xl flex-grow">

@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================= High-Tech Configurator Theme ================= */
+
+:root {
+  --c-green: #8AB73A;
+  --c-blue:  #1E88E5; /* unified accent */
+  --c-bg:    #0A2B6C; /* deep blue background */
+}
+
+@layer components {
+  /* Unified card */
+  .config-card {
+    @apply relative p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full md:w-[22rem];
+  }
+
+  /* Primary gradient button */
+  .config-button-primary {
+    @apply bg-gradient-to-r from-[var(--c-green)] to-[var(--c-blue)] text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--c-green)]/50;
+  }
+
+  /* Secondary glass button */
+  .config-button-secondary {
+    @apply bg-white/10 text-white border border-white/30 rounded-full py-3 px-8 hover:bg-white/20 hover:border-white/50 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/40;
+  }
+
+  /* Section wrapper */
+  .config-section {
+    @apply max-w-6xl mx-auto space-y-12;
+  }
+
+  /* Header badge */
+  .config-badge {
+    @apply inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[var(--c-green)] to-[var(--c-blue)] rounded-2xl shadow-lg shadow-[var(--c-green)]/40 text-4xl font-bold text-white mb-6;
+  }
+}
+
+/* ====== Automatic enhancements for existing utility combos ====== */
+
+@layer utilities {
+  /* Give all white/10 glass panels одинаковый градиентный фон и тень */
+  .backdrop-blur-sm.border.border-white\/20.rounded-2xl,
+  .backdrop-blur-sm.border.border-white\/20.rounded-xl {
+    @apply bg-gradient-to-br from-white/10 via-white/5 to-transparent shadow-xl shadow-black/20;
+  }
+
+  /* existing scrollbar rule already present. enhance for firefox */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #8AB73A;
+    border-radius: 3px;
+  }
+
+  /* Rise animation */
+  @keyframes rise {
+    from {opacity: 0; transform: translateY(12px);} 
+    to {opacity: 1; transform: none;}
+  }
+  .anim-rise {
+    animation: rise 0.45s cubic-bezier(.4,.2,.2,1) both;
+  }
+}
+
+/* Hover effects for config-card */
+.config-card:hover {
+  @apply -translate-y-2 shadow-[inset_0_0_0_2px_rgba(138,183,58,.4)] transition-transform duration-300;
+}
+
+/* Replace old accent shadows */
+.progress-circle {
+  @apply shadow-[0_0_12px_#1e88e530];
+} 
+
+/* ----- override legacy accent #60a5fa to new blue var ---- */
+[class*="to-\\[\\#60a5fa\\]"]{
+  --tw-gradient-to: var(--c-blue) !important;
+}
+[class*="from-\\[\\#60a5fa\\]"]{
+  --tw-gradient-from: var(--c-blue) !important;
+}
+[class*="via-\\[\\#60a5fa\\]"]{
+  --tw-gradient-stops: var(--tw-gradient-from), var(--c-blue), var(--tw-gradient-to) !important;
+}
+[class~="bg-\\[\\#60a5fa\\]"]{
+  background-color: var(--c-blue) !important;
+}
+[class*="text-\\[\\#60a5fa\\]"]{
+  color: var(--c-blue) !important;
+}
+[class*="border-\\[\\#60a5fa\\]"]{
+  border-color: var(--c-blue) !important;
+} 
+
+/* ---------------- Global smooth transitions ---------------- */
+*, *::before, *::after {
+  transition-property: background-color, color, border-color, transform, opacity;
+  transition-duration: 0.35s;
+  transition-timing-function: cubic-bezier(.25,.8,.25,1);
+} 

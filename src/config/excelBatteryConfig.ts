@@ -256,7 +256,7 @@ export const EXCEL_BATTERY_CONFIGURATIONS = {
     5: { type: "SP12-100", quantity: 40 },
     10: { type: "SP12-100", quantity: 40 },
     15: { type: "SP12-120", quantity: 40 },
-    20: { type: "SP12-200", quantity: 40 },
+    20: { type: "SP12-150", quantity: 40 },
     30: { type: "SP12-250", quantity: 40 },
     45: { type: "SP12-100", quantity: 80 },
     60: { type: "SP12-200", quantity: 80 },
@@ -382,6 +382,56 @@ export const EXCEL_BATTERY_CONFIGURATIONS = {
     60: { type: "SP12-200", quantity: 80 },
     90: { type: "SP12-250", quantity: 80 },
   },
+  "UM-1500TFL-30": {
+    5: { type: "SP12-38", quantity: 40 },
+    10: { type: "SP12-50", quantity: 40 },
+    15: { type: "SP12-65", quantity: 40 },
+    20: { type: "SP12-80", quantity: 40 },
+    30: { type: "SP12-100", quantity: 40 },
+    45: { type: "SP12-120", quantity: 40 },
+    60: { type: "SP12-200", quantity: 40 },
+    90: { type: "SP12-250", quantity: 40 },
+  },
+  "UM-1500TFL-60": {
+    5: { type: "SP12-80", quantity: 40 },
+    10: { type: "SP12-100", quantity: 40 },
+    15: { type: "SP12-120", quantity: 40 },
+    20: { type: "SP12-150", quantity: 40 },
+    30: { type: "SP12-200", quantity: 40 },
+    45: { type: "SP12-250", quantity: 40 },
+    60: { type: "SP12-120", quantity: 80 },
+    90: { type: "SP12-200", quantity: 80 },
+  },
+  "UM-1500TFL-90": {
+    5: { type: "SP12-120", quantity: 40 },
+    10: { type: "SP12-150", quantity: 40 },
+    15: { type: "SP12-200", quantity: 40 },
+    20: { type: "SP12-250", quantity: 40 },
+    30: { type: "SP12-100", quantity: 80 },
+    45: { type: "SP12-150", quantity: 80 },
+    60: { type: "SP12-200", quantity: 80 },
+    90: { type: "SP12-250", quantity: 80 },
+  },
+  "UM-1500TFL-120": {
+    5: { type: "SP12-150", quantity: 40 },
+    10: { type: "SP12-200", quantity: 40 },
+    15: { type: "SP12-250", quantity: 40 },
+    20: { type: "SP12-120", quantity: 80 },
+    30: { type: "SP12-200", quantity: 80 },
+    45: { type: "SP12-250", quantity: 80 },
+    60: { type: "SP12-200", quantity: 120 },
+    90: { type: "SP12-250", quantity: 120 },
+  },
+  "UM-1500TFL-150": {
+    5: { type: "SP12-200", quantity: 40 },
+    10: { type: "SP12-250", quantity: 40 },
+    15: { type: "SP12-150", quantity: 80 },
+    20: { type: "SP12-200", quantity: 80 },
+    30: { type: "SP12-250", quantity: 80 },
+    45: { type: "SP12-150", quantity: 120 },
+    60: { type: "SP12-200", quantity: 120 },
+    90: { type: "SP12-250", quantity: 120 },
+  },
   "UM-1800TFL-30": {
     5: { type: "SP12-26", quantity: 40 },
     10: { type: "SP12-38", quantity: 40 },
@@ -397,7 +447,7 @@ export const EXCEL_BATTERY_CONFIGURATIONS = {
     10: { type: "SP12-80", quantity: 40 },
     15: { type: "SP12-100", quantity: 40 },
     20: { type: "SP12-120", quantity: 40 },
-    30: { type: "SP12-200", quantity: 40 },
+    30: { type: "SP12-150", quantity: 40 },
     45: { type: "SP12-250", quantity: 40 },
     60: { type: "SP12-150", quantity: 80 },
     90: { type: "SP12-200", quantity: 80 },
@@ -993,7 +1043,7 @@ export const EXCEL_BATTERY_CONFIGURATIONS = {
     90: { type: "SP12-250", quantity: 720 },
   },
   "UM-8000TFL-800": {
-    5: { type: "SP12-250", quantity: 160 },
+    5: { type: "SP12-200", quantity: 160 },
     10: { type: "SP12-250", quantity: 200 },
     15: { type: "SP12-200", quantity: 240 },
     20: { type: "SP12-250", quantity: 280 },
@@ -1003,27 +1053,150 @@ export const EXCEL_BATTERY_CONFIGURATIONS = {
     90: { type: "SP12-250", quantity: 720 },
   },
   "UM-12000TFL-100": {
-    5: { type: "SP12-250", quantity: 280 },
-    10: { type: "SP12-250", quantity: 320 },
-    15: { type: "SP12-250", quantity: 360 },
-    20: { type: "SP12-250", quantity: 440 },
-    30: { type: "SP12-250", quantity: 520 },
-    45: { type: "SP12-250", quantity: 680 },
-    60: { type: "SP12-250", quantity: 880 },
-    90: { type: "SP12-250", quantity: 1008 },
+    5: { type: "SP12-200", quantity: 40 },
+    10: { type: "SP12-200", quantity: 40 },
+    15: { type: "SP12-200", quantity: 40 },
+    20: { type: "SP12-200", quantity: 40 },
+    30: { type: "SP12-200", quantity: 80 },
+    45: { type: "SP12-200", quantity: 80 },
+    60: { type: "SP12-200", quantity: 80 },
+    90: { type: "SP12-200", quantity: 120 },
+  },
+  "UM-12000TFL-200": {
+    5: { type: "SP12-200", quantity: 40 },
+    10: { type: "SP12-200", quantity: 80 },
+    15: { type: "SP12-200", quantity: 80 },
+    20: { type: "SP12-200", quantity: 80 },
+    30: { type: "SP12-200", quantity: 120 },
+    45: { type: "SP12-200", quantity: 160 },
+    60: { type: "SP12-200", quantity: 160 },
+    90: { type: "SP12-200", quantity: 200 },
+  },
+  "UM-12000TFL-300": {
+    5: { type: "SP12-200", quantity: 80 },
+    10: { type: "SP12-200", quantity: 80 },
+    15: { type: "SP12-200", quantity: 120 },
+    20: { type: "SP12-200", quantity: 120 },
+    30: { type: "SP12-200", quantity: 160 },
+    45: { type: "SP12-200", quantity: 200 },
+    60: { type: "SP12-200", quantity: 240 },
+    90: { type: "SP12-200", quantity: 280 },
+  },
+  "UM-12000TFL-400": {
+    5: { type: "SP12-200", quantity: 80 },
+    10: { type: "SP12-200", quantity: 120 },
+    15: { type: "SP12-200", quantity: 120 },
+    20: { type: "SP12-200", quantity: 160 },
+    30: { type: "SP12-200", quantity: 200 },
+    45: { type: "SP12-200", quantity: 240 },
+    60: { type: "SP12-200", quantity: 280 },
+    90: { type: "SP12-200", quantity: 360 },
+  },
+  "UM-12000TFL-500": {
+    5: { type: "SP12-200", quantity: 120 },
+    10: { type: "SP12-200", quantity: 120 },
+    15: { type: "SP12-200", quantity: 160 },
+    20: { type: "SP12-200", quantity: 160 },
+    30: { type: "SP12-200", quantity: 240 },
+    45: { type: "SP12-200", quantity: 280 },
+    60: { type: "SP12-200", quantity: 360 },
+    90: { type: "SP12-200", quantity: 440 },
+  },
+  "UM-12000TFL-600": {
+    5: { type: "SP12-200", quantity: 120 },
+    10: { type: "SP12-200", quantity: 160 },
+    15: { type: "SP12-200", quantity: 160 },
+    20: { type: "SP12-200", quantity: 200 },
+    30: { type: "SP12-200", quantity: 280 },
+    45: { type: "SP12-200", quantity: 360 },
+    60: { type: "SP12-200", quantity: 440 },
+    90: { type: "SP12-200", quantity: 520 },
+  },
+  "UM-12000TFL-700": {
+    5: { type: "SP12-200", quantity: 160 },
+    10: { type: "SP12-200", quantity: 160 },
+    15: { type: "SP12-200", quantity: 200 },
+    20: { type: "SP12-200", quantity: 240 },
+    30: { type: "SP12-200", quantity: 320 },
+    45: { type: "SP12-200", quantity: 400 },
+    60: { type: "SP12-200", quantity: 480 },
+    90: { type: "SP12-200", quantity: 600 },
+  },
+  "UM-12000TFL-800": {
+    5: { type: "SP12-200", quantity: 160 },
+    10: { type: "SP12-200", quantity: 200 },
+    15: { type: "SP12-200", quantity: 240 },
+    20: { type: "SP12-200", quantity: 280 },
+    30: { type: "SP12-200", quantity: 360 },
+    45: { type: "SP12-200", quantity: 440 },
+    60: { type: "SP12-200", quantity: 560 },
+    90: { type: "SP12-200", quantity: 680 },
+  },
+  "UM-12000TFL-900": {
+    5: { type: "SP12-200", quantity: 200 },
+    10: { type: "SP12-200", quantity: 240 },
+    15: { type: "SP12-200", quantity: 280 },
+    20: { type: "SP12-200", quantity: 320 },
+    30: { type: "SP12-200", quantity: 440 },
+    45: { type: "SP12-200", quantity: 560 },
+    60: { type: "SP12-200", quantity: 680 },
+    90: { type: "SP12-200", quantity: 800 },
+  },
+  "UM-12000TFL-1000": {
+    5: { type: "SP12-200", quantity: 240 },
+    10: { type: "SP12-200", quantity: 280 },
+    15: { type: "SP12-200", quantity: 320 },
+    20: { type: "SP12-200", quantity: 400 },
+    30: { type: "SP12-200", quantity: 520 },
+    45: { type: "SP12-200", quantity: 640 },
+    60: { type: "SP12-200", quantity: 760 },
+    90: { type: "SP12-200", quantity: 920 },
+  },
+  "UM-12000TFL-1100": {
+    5: { type: "SP12-200", quantity: 280 },
+    10: { type: "SP12-200", quantity: 320 },
+    15: { type: "SP12-200", quantity: 360 },
+    20: { type: "SP12-200", quantity: 440 },
+    30: { type: "SP12-200", quantity: 560 },
+    45: { type: "SP12-200", quantity: 720 },
+    60: { type: "SP12-200", quantity: 840 },
+    90: { type: "SP12-200", quantity: 1000 },
+  },
+  "UM-12000TFL-1200": {
+    5: { type: "SP12-200", quantity: 320 },
+    10: { type: "SP12-200", quantity: 360 },
+    15: { type: "SP12-200", quantity: 400 },
+    20: { type: "SP12-200", quantity: 480 },
+    30: { type: "SP12-200", quantity: 640 },
+    45: { type: "SP12-200", quantity: 800 },
+    60: { type: "SP12-200", quantity: 920 },
+    90: { type: "SP12-200", quantity: 1120 },
   },
 };
 
-export function getBatteryConfigFromExcel(upsModel: string, backupTime: number) {
-  const config = EXCEL_BATTERY_CONFIGURATIONS[upsModel];
+export function getBatteryConfigFromExcel(upsModel: string, backupTime: number, capacity?: number) {
+  // Для UM моделей формируем правильное название модели на основе capacity
+  let searchModel = upsModel;
+  
+  // Если это UM модель, используем capacity для поиска правильной конфигурации
+  if (upsModel.startsWith('UM-') && capacity) {
+    // Для UM-12000TFL-XXX используем capacity для определения правильной модели
+    if (upsModel.includes('UM-12000TFL')) {
+      // Формируем название на основе capacity из Excel таблицы
+      searchModel = `UM-12000TFL-${capacity}`;
+    }
+    // Можно добавить другие паттерны для других UM моделей при необходимости
+  }
+  
+  const config = EXCEL_BATTERY_CONFIGURATIONS[searchModel as keyof typeof EXCEL_BATTERY_CONFIGURATIONS];
   if (!config) {
-    console.warn(`Конфигурация для модели ${upsModel} не найдена в Excel файле`);
+    console.warn(`Конфигурация для модели ${searchModel} (исходная: ${upsModel}) не найдена в Excel файле`);
     return null;
   }
 
-  const timeConfig = config[backupTime];
+  const timeConfig = config[backupTime as keyof typeof config];
   if (!timeConfig) {
-    console.warn(`Конфигурация для времени ${backupTime} мин не найдена для модели ${upsModel}`);
+    console.warn(`Конфигурация для времени ${backupTime} мин не найдена для модели ${searchModel}`);
     return null;
   }
 
