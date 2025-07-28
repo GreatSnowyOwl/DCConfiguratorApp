@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext'; // Adjust path if needed
 import { useNavigate, useLocation } from 'react-router-dom';
+import { usePrices } from '../contexts/PriceContext'; // Import usePrices
 import {
     FormData as ConfigFormData, 
     PDUType,

@@ -1,10 +1,11 @@
+import { getUPSImageMapping } from '../utils/upsImageMapping';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext'; // Adjust path if needed
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { jsPDF } from 'jspdf'; // Import jsPDF
-import { PDFDocument, rgb } from 'pdf-lib'; // Import pdf-lib with rgb
+import { PDFDocument } from 'pdf-lib'; // Import pdf-lib
 import fontkit from '@pdf-lib/fontkit'; // Add fontkit import
 import { Quote as UnifiedQuoteType, CRACQuoteAccessory } from './PartnerDashboard'; // Import the unified type and CRACQuoteAccessory
 
@@ -16,19 +17,18 @@ import logoImage from '/logologo.png';
 import {
     FormData, PDUType, translations, _dataUpsAc, _dataUpsIt, _dataAc,
     _dataPdu, _dataMon, _dataIso, _dataDist, _dataRacks, _dataBattery,
-    calculateUPSConfig, UPSItem, ACItem // Import the shared function and types
+    calculateUPSConfig // Import the shared function
 } from '../utils/configuratorData';
-import { getUPSImageMapping } from '../utils/upsImageMapping';
 
 // --- Helper Functions (Restore necessary ones) ---
 
-const getRecommendedUPS = (requiredPower: number): UPSItem => {
-  return _dataUpsAc.find((ups: UPSItem) => ups.power >= requiredPower) || _dataUpsAc[_dataUpsAc.length - 1];
+const getRecommendedUPS = (requiredPower: number) => {
+  return _dataUpsAc.find((ups: any) => ups.power >= requiredPower) || _dataUpsAc[_dataUpsAc.length - 1];
 };
 
-const getRecommendedITUPS = (itLoadKw: number): UPSItem => {
+const getRecommendedITUPS = (itLoadKw: number) => {
     const requiredPower = itLoadKw * 1.3; // Adding 30% margin
-    return _dataUpsIt.find((ups: UPSItem) => ups.power >= requiredPower) || _dataUpsIt[_dataUpsIt.length - 1];
+    return _dataUpsIt.find((ups: any) => ups.power >= requiredPower) || _dataUpsIt[_dataUpsIt.length - 1];
 };
 
 const getACPower = (formData: FormData) => {
@@ -496,150 +496,6 @@ export default function ViewQuote() {
       return;
     }
 
-    // --- Handle UPS Quote PDF Generation ---
-    if (currentQuoteData.quoteType === 'UPS') {
-      if (!currentQuoteData.upsConfigData && !currentQuoteData.configData) {
-        alert("Ошибка: Данные конфигурации для UPS квоты отсутствуют в объекте квоты.");
-        setIsGeneratingPdf(false);
-        return;
-      }
-      
-      const upsConfigData = currentQuoteData.upsConfigData || currentQuoteData.configData;
-      const { selectedProduct } = upsConfigData;
-      
-      if (!selectedProduct) {
-        alert("UPS модель не найдена в данных конфигурации квоты.");
-        setIsGeneratingPdf(false);
-        return;
-      }
-
-      // Generate UPS quote PDF (similar to the logic in UPSConfiguratorPage)
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', putOnlyUsedFonts: true });
-      doc.addFont('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf', 'Roboto', 'normal');
-      doc.addFont('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf', 'Roboto', 'bold');
-      doc.setFont('Roboto');
-
-      const primaryColor = '#0A2B6C'; 
-      const secondaryColor = '#333333';
-      const accentColor = '#8AB73A'; 
-      const pageWidth = doc.internal.pageSize.width;
-      const pageHeight = doc.internal.pageSize.height;
-      const margin = 15;
-      const contentWidth = pageWidth - (margin * 2);
-      let y = margin;
-
-      // Add logo
-      const viewQuoteLogoImage = `${import.meta.env.BASE_URL}logologo.png`;
-      if (viewQuoteLogoImage) {
-        try {
-          const logoResponse = await fetch(viewQuoteLogoImage);
-          if (logoResponse.ok) {
-            const logoBlob = await logoResponse.blob();
-            const logoDataUrl = await new Promise<string>((resolve) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.readAsDataURL(logoBlob);
-            });
-            doc.addImage(logoDataUrl, 'PNG', pageWidth - margin - 40, margin, 35, 20);
-          }
-        } catch (error) {
-          console.warn('Failed to load logo:', error);
-        }
-      }
-
-      // Title
-      doc.setTextColor(primaryColor);
-      doc.setFontSize(20);
-      doc.setFont('Roboto', 'bold');
-      doc.text('Коммерческое предложение', margin, y + 15);
-      doc.text(`${selectedProduct.model || 'UPS'}`, margin, y + 25);
-      y += 35;
-
-      // Date
-      doc.setFontSize(12);
-      doc.setFont('Roboto', 'normal');
-      doc.setTextColor(secondaryColor);
-      const quoteDate = new Date(currentQuoteData.date);
-      doc.text(`Дата: ${quoteDate.toLocaleDateString('ru-RU')}`, margin, y);
-      y += 20;
-
-      // Add UPS configuration details here (simplified version)
-      // Add section headers and configuration details similar to UPSConfiguratorPage
-      
-      // Generate the PDF as ArrayBuffer
-      const generatedPdfBytes = doc.output('arraybuffer');
-
-      // Now try to merge with UPS documentation
-      try {
-        let finalPdfBytes = generatedPdfBytes;
-        
-        if (selectedProduct) {
-          const imageMapping = getUPSImageMapping(selectedProduct.type, selectedProduct.frame, selectedProduct.capacity);
-          
-          try {
-            const specResponse = await fetch(imageMapping.documentationUrl);
-            if (specResponse.ok) {
-              const specPdfBytes = await specResponse.arrayBuffer();
-              
-              // Merge PDFs using pdf-lib
-              const mergedPdf = await PDFDocument.create();
-              
-              // Add quote pages first
-              const quotePdfDoc = await PDFDocument.load(generatedPdfBytes);
-              const quotePages = await mergedPdf.copyPages(quotePdfDoc, quotePdfDoc.getPageIndices());
-              quotePages.forEach(page => mergedPdf.addPage(page));
-              
-              // Add specification pages
-              const specPdfDoc = await PDFDocument.load(specPdfBytes);
-              const specPages = await mergedPdf.copyPages(specPdfDoc, specPdfDoc.getPageIndices());
-              specPages.forEach(page => mergedPdf.addPage(page));
-              
-              // Add page numbers
-              const pages = mergedPdf.getPages();
-              pages.forEach((page, index) => {
-                const pageNumber = index + 1;
-                const totalPages = pages.length;
-                                 page.drawText(
-                   `${pageNumber} / ${totalPages}`,
-                   {
-                     x: page.getWidth() / 2 - 15,
-                     y: 20,
-                     size: 10,
-                     color: rgb(0.5, 0.5, 0.5)
-                   }
-                 );
-              });
-              
-              finalPdfBytes = await mergedPdf.save();
-            } else {
-              console.warn('UPS specification PDF not found, using quote only.');
-            }
-          } catch (mergeError) {
-            console.error('Error merging UPS PDFs:', mergeError);
-            // Fallback to quote only
-          }
-        }
-
-        // Download the final PDF
-        const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `UPS_Quote_${selectedProduct.model?.replace(/[^a-z0-9_.-]/gi, '_') || 'UPS'}_${new Date().toISOString().slice(0,10)}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-        
-      } catch (error) {
-        console.error('Error generating UPS PDF:', error);
-        alert('Произошла ошибка при генерации PDF.');
-      } finally {
-        setIsGeneratingPdf(false);
-      }
-      
-      return;
-    }
-
     // --- Continue with DC Quote PDF Generation --- 
     const formData = currentQuoteData.configData as FormData | undefined;
     if (!formData) {
@@ -806,7 +662,7 @@ export default function ViewQuote() {
 
     // Cooling System (from saved data)
     addSectionHeader(translations.steps.cooling);
-    const selectedCoolingAC = _dataAc.find((unit: ACItem) => unit.power.toString() === formData.acModel || unit.model.includes(formData.acModel));
+    const selectedCoolingAC = _dataAc.find((unit: any) => unit.power.toString() === formData.acModel || unit.model.includes(formData.acModel));
     addTableRow(translations.fields.acModel, selectedCoolingAC ? `${selectedCoolingAC.model} (${formData.acModel} kW)` : `${formData.acModel} kW`);
     const currentAcUnits = calculateACUnits(formData); // Use helper with saved data
     addTableRow(translations.fields.acUnits, currentAcUnits.toString());
@@ -945,7 +801,7 @@ export default function ViewQuote() {
     if (formData.acModel) {
         // First try to find AC by comparing power values as numbers
         const acPower = getACPower(formData);
-        const selectedAC = _dataAc.find((unit: ACItem) => 
+        const selectedAC = _dataAc.find((unit: any) => 
             Math.abs(unit.power - parseFloat(formData.acModel)) < 0.1
         );
         
@@ -971,7 +827,7 @@ export default function ViewQuote() {
             }
         } else {
             // Try finding by model string
-            const acByModelString = _dataAc.find((unit: ACItem) => 
+            const acByModelString = _dataAc.find((unit: any) => 
                 unit.model.includes(formData.acModel) || 
                 formData.acModel.includes(unit.model)
             );
@@ -1000,7 +856,7 @@ export default function ViewQuote() {
                 // If we couldn't find the exact model but have a power value,
                 // use a reasonable default price based on similar units
                 const acUnitsCount = calculateACUnits(formData);
-                const similarPowerUnit = _dataAc.find((unit: ACItem) => unit.power >= acPower) || _dataAc[0];
+                const similarPowerUnit = _dataAc.find((unit: any) => unit.power >= acPower) || _dataAc[0];
                 const estimatedPrice = similarPowerUnit ? similarPowerUnit.price : 10000;
                 const acCost = estimatedPrice * acUnitsCount;
                 costItems.push({ 
@@ -1186,14 +1042,21 @@ export default function ViewQuote() {
     // --- 3. Fetch the static PDF (same as before) ---
     let staticPdfBytes: ArrayBuffer | null = null;
     try {
-      const response = await fetch(`${import.meta.env.BASE_URL}components2.pdf`); // Prepend base URL
+      let pdfUrl = `${import.meta.env.BASE_URL}components2.pdf`;
+      // UPS QUOTE: use correct documentation
+      if (currentQuoteData.quoteType === 'UPS' && currentQuoteData.upsConfigData?.selectedProduct) {
+        const prod = currentQuoteData.upsConfigData.selectedProduct;
+        const mapping = getUPSImageMapping(prod.type, prod.frame, prod.capacity);
+        pdfUrl = mapping.documentationUrl;
+      }
+      const response = await fetch(pdfUrl);
       if (!response.ok) {
-        throw new Error(`Failed to fetch components2.pdf: ${response.statusText}`);
+        throw new Error(`Failed to fetch documentation PDF: ${response.statusText}`);
       }
       staticPdfBytes = await response.arrayBuffer();
     } catch (error) {
       console.error("Error fetching static PDF:", error);
-      alert("Не удалось загрузить статический PDF-файл (components2.pdf). Пожалуйста, убедитесь, что он находится в папке public.");
+      alert("Не удалось загрузить статический PDF-файл. Пожалуйста, убедитесь, что он находится в папке public.");
       // Optionally, proceed to download only the generated part
       const blob = new Blob([generatedPdfBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
@@ -1300,7 +1163,7 @@ export default function ViewQuote() {
     // AC Cost
     if (dcFormData.acModel) {
         const acPower = getACPower(dcFormData);
-        const selectedAC = _dataAc.find(unit => Math.abs(unit.power - parseFloat(dcFormData.acModel)) < 0.1);
+        const selectedAC = _dataAc.find((unit: any) => Math.abs(unit.power - parseFloat(dcFormData.acModel)) < 0.1);
         if (selectedAC) {
             const acUnitsCount = calculateACUnits(dcFormData);
             const acCost = selectedAC.price * acUnitsCount;
@@ -1314,7 +1177,7 @@ export default function ViewQuote() {
                 }
             }
         } else {
-            const acByModelString = _dataAc.find(unit => unit.model.includes(dcFormData.acModel) || dcFormData.acModel.includes(unit.model));
+            const acByModelString = _dataAc.find((unit: any) => unit.model.includes(dcFormData.acModel) || dcFormData.acModel.includes(unit.model));
             if (acByModelString) {
                 const acUnitsCount = calculateACUnits(dcFormData);
                 const acCost = acByModelString.price * acUnitsCount;
@@ -1331,7 +1194,7 @@ export default function ViewQuote() {
                 }
             } else if (acPower > 0) {
                 const acUnitsCount = calculateACUnits(dcFormData);
-                const similarPowerUnit = _dataAc.find(unit => unit.power >= acPower) || _dataAc[0];
+                const similarPowerUnit = _dataAc.find((unit: any) => unit.power >= acPower) || _dataAc[0];
                 const estimatedPrice = similarPowerUnit ? similarPowerUnit.price : 10000;
                 const acCost = estimatedPrice * acUnitsCount;
                 costItemsList.push({ label: `Кондиционеры (${acUnitsCount}x ${acPower}kW)`, cost: acCost });
