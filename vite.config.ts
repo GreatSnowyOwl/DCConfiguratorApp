@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  base: './', // Use relative paths for deployment
+  base: './',
   plugins: [
     react({
       // Optimize JSX runtime
