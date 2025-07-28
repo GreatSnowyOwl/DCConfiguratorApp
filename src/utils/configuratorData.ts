@@ -3,6 +3,19 @@
 // Define types (copied from DCConfiguratorApp.tsx)
 export type PDUType = 'B' | 'M' | 'S';
 
+export interface UPSItem {
+  model: string;
+  power: number;
+  price: number;
+  description?: string;
+}
+
+export interface ACItem {
+  model: string;
+  power: number;
+  price: number;
+}
+
 export interface FormData {
   quoteName: string;
   customerName: string;

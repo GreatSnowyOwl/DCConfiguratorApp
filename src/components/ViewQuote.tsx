@@ -16,19 +16,19 @@ import logoImage from '/logologo.png';
 import {
     FormData, PDUType, translations, _dataUpsAc, _dataUpsIt, _dataAc,
     _dataPdu, _dataMon, _dataIso, _dataDist, _dataRacks, _dataBattery,
-    calculateUPSConfig // Import the shared function
+    calculateUPSConfig, UPSItem, ACItem // Import the shared function and types
 } from '../utils/configuratorData';
 import { getUPSImageMapping } from '../utils/upsImageMapping';
 
 // --- Helper Functions (Restore necessary ones) ---
 
-const getRecommendedUPS = (requiredPower: number) => {
-  return _dataUpsAc.find(ups => ups.power >= requiredPower) || _dataUpsAc[_dataUpsAc.length - 1];
+const getRecommendedUPS = (requiredPower: number): UPSItem => {
+  return _dataUpsAc.find((ups: UPSItem) => ups.power >= requiredPower) || _dataUpsAc[_dataUpsAc.length - 1];
 };
 
-const getRecommendedITUPS = (itLoadKw: number) => {
+const getRecommendedITUPS = (itLoadKw: number): UPSItem => {
     const requiredPower = itLoadKw * 1.3; // Adding 30% margin
-    return _dataUpsIt.find(ups => ups.power >= requiredPower) || _dataUpsIt[_dataUpsIt.length - 1];
+    return _dataUpsIt.find((ups: UPSItem) => ups.power >= requiredPower) || _dataUpsIt[_dataUpsIt.length - 1];
 };
 
 const getACPower = (formData: FormData) => {
@@ -806,7 +806,7 @@ export default function ViewQuote() {
 
     // Cooling System (from saved data)
     addSectionHeader(translations.steps.cooling);
-    const selectedCoolingAC = _dataAc.find(unit => unit.power.toString() === formData.acModel || unit.model.includes(formData.acModel));
+    const selectedCoolingAC = _dataAc.find((unit: ACItem) => unit.power.toString() === formData.acModel || unit.model.includes(formData.acModel));
     addTableRow(translations.fields.acModel, selectedCoolingAC ? `${selectedCoolingAC.model} (${formData.acModel} kW)` : `${formData.acModel} kW`);
     const currentAcUnits = calculateACUnits(formData); // Use helper with saved data
     addTableRow(translations.fields.acUnits, currentAcUnits.toString());
@@ -945,7 +945,7 @@ export default function ViewQuote() {
     if (formData.acModel) {
         // First try to find AC by comparing power values as numbers
         const acPower = getACPower(formData);
-        const selectedAC = _dataAc.find(unit => 
+        const selectedAC = _dataAc.find((unit: ACItem) => 
             Math.abs(unit.power - parseFloat(formData.acModel)) < 0.1
         );
         
@@ -971,7 +971,7 @@ export default function ViewQuote() {
             }
         } else {
             // Try finding by model string
-            const acByModelString = _dataAc.find(unit => 
+            const acByModelString = _dataAc.find((unit: ACItem) => 
                 unit.model.includes(formData.acModel) || 
                 formData.acModel.includes(unit.model)
             );
@@ -1000,7 +1000,7 @@ export default function ViewQuote() {
                 // If we couldn't find the exact model but have a power value,
                 // use a reasonable default price based on similar units
                 const acUnitsCount = calculateACUnits(formData);
-                const similarPowerUnit = _dataAc.find(unit => unit.power >= acPower) || _dataAc[0];
+                const similarPowerUnit = _dataAc.find((unit: ACItem) => unit.power >= acPower) || _dataAc[0];
                 const estimatedPrice = similarPowerUnit ? similarPowerUnit.price : 10000;
                 const acCost = estimatedPrice * acUnitsCount;
                 costItems.push({ 
