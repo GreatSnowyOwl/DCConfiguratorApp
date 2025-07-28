@@ -10,16 +10,28 @@
 # BEGIN React SPA Routing (Unified v2)
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Route requests to the SPA
-  RewriteRule ^wp-content/partner-zone-test/ /wp-content/partner-zone-test/index.html [L]
-  # Handle SPA routes
-  RewriteCond %{REQUEST_URI} ^/(login|signup|forgot-password|reset-password|registration-status|email-verified|dashboard|configurator|crac-configurator) [NC]
+  RewriteBase /
+
+  # --- Condition 1: Is the request potentially for an SPA route? ---
+  # Check if the request URI *starts with* known SPA base paths.
+  RewriteCond %{REQUEST_URI} ^/(login|signup|forgot-password|reset-password|registration-status|email-verified|dashboard|configurator|crac-configurator)(/.*|$) [NC]
+
+  # --- Condition 2: Is it NOT an existing file or directory? ---
+  # Only proceed if it's NOT a real file or directory.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
+
+  # --- Action: Rewrite ONLY IF BOTH conditions above are met ---
+  # Rewrite to the SPA's index.html. Ensure this path is correct!
   RewriteRule . /wp-content/partner-zone-test/index.html [L]
+
+  # --- Fallthrough ---
+  # Requests for WP Core (/wp-admin, /wp-json), existing files/dirs,
+  # OR non-SPA paths (like normal WP pages/posts) will bypass the RewriteRule above
+  # and fall through to LSCache/WordPress blocks below.
+
 </IfModule>
 # END React SPA Routing (Unified v2)
-
 # BEGIN LSCACHE
 ## LITESPEED WP CACHE PLUGIN - Do not edit the contents of this block! ##
 <IfModule LiteSpeed>
