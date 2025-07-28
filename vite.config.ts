@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  base: './',
+  base: '/wp-content/partner-zone-test/', // Ensure all asset paths are relative
   plugins: [
     react({
       // Optimize JSX runtime
